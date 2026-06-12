@@ -17,7 +17,8 @@ import {
   MdSettings, 
   MdLogout,
   MdMenu,
-  MdChevronLeft
+  MdChevronLeft,
+  MdStackedLineChart
 } from "react-icons/md";
 
 interface SidebarItem {
@@ -56,6 +57,12 @@ export default function DashboardLayout({
     }
     if (pathname.startsWith("/dashboard/reports")) {
       return {
+        title: "Reports and Moderation",
+        description: "Manage and resolve user reports, flag contents, and moderation settings",
+      };
+    }
+    if (pathname.startsWith("/dashboard/marketing-analytics")) {
+      return {
         title: "Marketing Analytics",
         description: "Select a role to view age, gender, and location distribution",
       };
@@ -70,6 +77,12 @@ export default function DashboardLayout({
       return {
         title: "Payment and Payout",
         description: "Manage and monitor platform transactions, disputes, and payouts",
+      };
+    }
+    if (pathname.startsWith("/dashboard/bidding")) {
+      return {
+        title: "Bidding Management",
+        description: "Manage and configure live bidding slots and bidder applications",
       };
     }
     // Extract panel name from path
@@ -95,6 +108,7 @@ export default function DashboardLayout({
     { name: "Payment & Payout", path: "/dashboard/payout", icon: <MdCreditCard className="w-5 h-5" /> },
     { name: "Bidding Management", path: "/dashboard/bidding", icon: <MdGavel className="w-5 h-5" /> },
     { name: "Reports & Moderation", path: "/dashboard/reports", icon: <MdFlag className="w-5 h-5" /> },
+    { name: "Marketing Analytics", path: "/dashboard/marketing-analytics", icon: <MdStackedLineChart className="w-5 h-5" /> },
     { name: "Analytics & Insights", path: "/dashboard/analytics", icon: <MdAnalytics className="w-5 h-5" /> },
     { name: "AI Control Panel", path: "/dashboard/ai", icon: <MdSmartToy className="w-5 h-5" /> },
     { name: "Notifications", path: "/dashboard/notifications", icon: <MdNotifications className="w-5 h-5" /> },

@@ -733,6 +733,53 @@ export const mockApi = {
     coachTransactionsData[index] = { ...coachTransactionsData[index], status };
     return simulateLatency({ ...coachTransactionsData[index] }, 300);
   },
+
+  // Fetch live bidding slots
+  getBiddingSlots: async (): Promise<BiddingSlot[]> => {
+    return simulateLatency([...biddingSlotsData], 400);
+  },
+
+  // Fetch bidders participating in a slot
+  getBiddersForSlot: async (slotName: string): Promise<BidderRecord[]> => {
+    const data = initialBiddersData[slotName] || [];
+    return simulateLatency([...data], 400);
+  },
+
+  // Fetch bidding system configuration settings
+  getBiddingConfig: async (): Promise<BiddingSystemConfig> => {
+    return simulateLatency({ ...biddingConfigData }, 350);
+  },
+
+  // Update bidding system configuration settings
+  updateBiddingConfig: async (config: BiddingSystemConfig): Promise<BiddingSystemConfig> => {
+    biddingConfigData = { ...config };
+    biddingSlotsData = biddingSlotsData.map(s => {
+      if (s.slotName === "Slot 1") return { ...s, topBidAmount: config.slot1Min };
+      if (s.slotName === "Slot 2") return { ...s, topBidAmount: config.slot2Min };
+      if (s.slotName === "Slot 3") return { ...s, topBidAmount: config.slot3Min };
+      if (s.slotName === "Slot 4") return { ...s, topBidAmount: config.slot4Min };
+      if (s.slotName === "Slot 5") return { ...s, topBidAmount: config.rafflePrice };
+      return s;
+    });
+    return simulateLatency({ ...biddingConfigData }, 400);
+  },
+
+  // Fetch moderation reports list
+  getModerationReports: async (): Promise<ModerationReport[]> => {
+    return simulateLatency([...moderationReportsData], 400);
+  },
+
+  // Resolve a pending report
+  resolveModerationReport: async (id: string, note: string): Promise<ModerationReport | null> => {
+    const index = moderationReportsData.findIndex(r => r.id === id);
+    if (index === -1) return simulateLatency(null);
+    moderationReportsData[index] = {
+      ...moderationReportsData[index],
+      status: "Resolved",
+      resolutionNote: note
+    };
+    return simulateLatency({ ...moderationReportsData[index] }, 400);
+  },
 };
 
 // Demographics mock data
@@ -1583,4 +1630,159 @@ let userTransactionsData = [...initialUserTransactions];
 let coachDisputesData = [...initialCoachDisputes];
 let coachWithdrawalsData = [...initialCoachWithdrawals];
 let coachTransactionsData = [...initialCoachTransactions];
+
+// --- Bidding Management Mock Extensions ---
+export interface BiddingSlot {
+  id: string;
+  slotName: string;
+  topBidAmount: number;
+  timeRemaining: string;
+  biddersCount: number;
+}
+
+export interface BidderRecord {
+  position: string;
+  coachName: string;
+  avatar: string;
+  specialty: string;
+  sessions: number;
+  rating: number;
+  bidAmount: number;
+}
+
+export interface BiddingSystemConfig {
+  slot1Min: number;
+  slot2Min: number;
+  slot3Min: number;
+  slot4Min: number;
+  rafflePrice: number;
+  biddingDuration: string;
+  featuredDuration: string;
+}
+
+export let biddingConfigData: BiddingSystemConfig = {
+  slot1Min: 50,
+  slot2Min: 45,
+  slot3Min: 40,
+  slot4Min: 35,
+  rafflePrice: 5,
+  biddingDuration: "20h, 13 min",
+  featuredDuration: "30 Days"
+};
+
+export let biddingSlotsData: BiddingSlot[] = [
+  { id: "BID-8392", slotName: "Slot 1", topBidAmount: 50, timeRemaining: "20h, 13 min", biddersCount: 17 },
+  { id: "BID-8391", slotName: "Slot 2", topBidAmount: 45, timeRemaining: "12/04/2026, 10:00", biddersCount: 17 },
+  { id: "BID-8390", slotName: "Slot 3", topBidAmount: 40, timeRemaining: "12/04/2026, 10:00", biddersCount: 17 },
+  { id: "BID-8389", slotName: "Slot 4", topBidAmount: 35, timeRemaining: "12/04/2026, 10:00", biddersCount: 17 },
+  { id: "BID-8388", slotName: "Slot 5", topBidAmount: 30, timeRemaining: "12/04/2026, 10:00", biddersCount: 17 }
+];
+
+export const initialBiddersData: Record<string, BidderRecord[]> = {
+  "Slot 1": [
+    { position: "01", coachName: "Michael Dunphy", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200", specialty: "Relationship recovery", sessions: 450, rating: 4.9, bidAmount: 50 },
+    { position: "02", coachName: "Robert Perry", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200", specialty: "Emotional healing", sessions: 235, rating: 4.8, bidAmount: 48 },
+    { position: "03", coachName: "Lana Byrd", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200", specialty: "Breakup Support", sessions: 175, rating: 4.8, bidAmount: 46 },
+    { position: "04", coachName: "Joseph McFall", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200", specialty: "Self-esteem building", sessions: 150, rating: 4.6, bidAmount: 44 },
+    { position: "05", coachName: "Karen Nelson", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200", specialty: "Dating Strategy", sessions: 120, rating: 4.5, bidAmount: 42 },
+    { position: "06", coachName: "Dr. Sarah Jenkins", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200", specialty: "Executive Coaching", sessions: 420, rating: 4.9, bidAmount: 40 }
+  ],
+  "Slot 2": [
+    { position: "01", coachName: "Robert Perry", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200", specialty: "Emotional healing", sessions: 235, rating: 4.8, bidAmount: 45 },
+    { position: "02", coachName: "Lana Byrd", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200", specialty: "Breakup Support", sessions: 175, rating: 4.8, bidAmount: 42 },
+    { position: "03", coachName: "Joseph McFall", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200", specialty: "Self-esteem building", sessions: 150, rating: 4.6, bidAmount: 40 },
+    { position: "04", coachName: "Dr. Sarah Jenkins", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200", specialty: "Executive Coaching", sessions: 420, rating: 4.9, bidAmount: 38 }
+  ],
+  "Slot 3": [
+    { position: "01", coachName: "Lana Byrd", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200", specialty: "Breakup Support", sessions: 175, rating: 4.8, bidAmount: 40 },
+    { position: "02", coachName: "Joseph McFall", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200", specialty: "Self-esteem building", sessions: 150, rating: 4.6, bidAmount: 38 },
+    { position: "03", coachName: "Karen Nelson", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200", specialty: "Dating Strategy", sessions: 120, rating: 4.5, bidAmount: 35 }
+  ],
+  "Slot 4": [
+    { position: "01", coachName: "Joseph McFall", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200", specialty: "Self-esteem building", sessions: 150, rating: 4.6, bidAmount: 35 },
+    { position: "02", coachName: "Karen Nelson", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200", specialty: "Dating Strategy", sessions: 120, rating: 4.5, bidAmount: 32 }
+  ],
+  "Slot 5": [
+    { position: "01", coachName: "Karen Nelson", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200", specialty: "Dating Strategy", sessions: 120, rating: 4.5, bidAmount: 30 }
+  ]
+};
+
+// --- Reports & Moderation Mock Extensions ---
+export interface ModerationReport {
+  id: string;
+  status: "Pending" | "Resolved";
+  type: "User" | "Content" | "Coach";
+  reporter: string;
+  reported: string;
+  reason: "Harassment" | "Abuse" | "Spam" | string;
+  date: string;
+  description: string;
+  resolutionNote?: string;
+}
+
+export let moderationReportsData: ModerationReport[] = [
+  {
+    id: "RPT-20260425-532",
+    status: "Pending",
+    type: "User",
+    reporter: "Alex Tucker",
+    reported: "Emma Wilson",
+    reason: "Harassment",
+    date: "12/04/2026",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tristique in ultrices sapien pulvinar cras pulvinar enim. Ut ut lectus sit aenean. Facilisis sit in purus augue in. Diam ut ultrices iaculis nec feugiat erat nibh. Lorem pretium venenatis turpis eleifend. Sit purus tellus neque purus pretium eget. Mollis diam odio condimentum odio ultrices. Nec porta odio tortor id. Eget sit id porttitor euismod augue turpis in quam eget. Lorem ipsum dolor sit amet, consectetur. Suspendisse tristique in ultrices sapien pulvinar cras pulvinar enim. Ut ut lectus sit aenean. Facilisis sit in purus augue in. Diam ut ultrices iaculis nec feugiat erat nibh. Lorem pretium venenatis turpis eleifend. Sit purus tellus neque purus pretium eget. Mollis diam odio condimentum odio ultrices. Nec porta odio tortor id. Eget sit id porttitor euismod augue turpis in quam eget. Lorem ipsum dolor sit amet, consectetur. Suspendisse tristique in ultrices sapien pulvinar cras pulvinar enim. Ut ut lectus sit aenean. Facilisis sit in purus augue in. Diam ut ultrices iaculis nec feugiat erat nibh. Lorem pretium venenatis turpis eleifend. Sit purus tellus neque purus pretium eget. Mollis diam odio condimentum odio ultrices. Nec porta odio tortor id. Eget sit id porttitor euismod augue turpis in quam eget. Lorem ipsum dolor sit amet, consectetur. Suspendisse tristique in ultrices sapien pulvinar cras pulvinar enim. Ut ut lectus sit aenean. Facilisis sit in purus augue in. Diam ut ultrices iaculis nec feugiat erat nibh. Lorem pretium venenatis turpis eleifend. Sit purus tellus neque purus pretium eget. Mollis diam odio condimentum odio ultrices. Nec porta odio tortor id. Eget sit id porttitor euismod augue turpis in quam eget."
+  },
+  {
+    id: "RPT-20260425-531",
+    status: "Pending",
+    type: "Content",
+    reporter: "Mathew Perry",
+    reported: "Sarah Johnson",
+    reason: "Abuse",
+    date: "02/03/2026",
+    description: "Abusive statements posted publicly in profile summary violating community standards guidelines. Submitter claims direct offensive remarks targeting active mental health status of other coaches."
+  },
+  {
+    id: "RPT-20260425-530",
+    status: "Pending",
+    type: "Coach",
+    reporter: "Joseph McFall",
+    reported: "Luke Dunphy",
+    reason: "Spam",
+    date: "25/02/2026",
+    description: "Repeated spam messages promoting unauthorized external links and business services. Submitter blocked the user after multiple automated session logs entries were generated."
+  },
+  {
+    id: "RPT-20260425-529",
+    status: "Resolved",
+    type: "Content",
+    reporter: "Mathew Perry",
+    reported: "Sarah Johnson",
+    reason: "Abuse",
+    date: "02/03/2026",
+    description: "Resolved abuse claim. Profile content edited and warnings sent to user.",
+    resolutionNote: "Content warned and profile section flagged."
+  },
+  {
+    id: "RPT-20260425-528",
+    status: "Resolved",
+    type: "User",
+    reporter: "Alex Tucker",
+    reported: "Emma Wilson",
+    reason: "Harassment",
+    date: "12/04/2026",
+    description: "Resolved harassment claim. Users isolated and contact limits placed.",
+    resolutionNote: "Contact restriction set in database."
+  },
+  {
+    id: "RPT-20260425-527",
+    status: "Resolved",
+    type: "Content",
+    reporter: "Mathew Perry",
+    reported: "Sarah Johnson",
+    reason: "Abuse",
+    date: "02/03/2026",
+    description: "Resolved content dispute between coaches.",
+    resolutionNote: "Profile comment moderated."
+  }
+];
 
