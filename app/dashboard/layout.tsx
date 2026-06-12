@@ -20,6 +20,8 @@ import {
   MdChevronLeft,
   MdStackedLineChart
 } from "react-icons/md";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 
 interface SidebarItem {
   name: string;
@@ -35,6 +37,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = React.useState(false);
 
   const getHeaderContent = () => {
     if (pathname === "/dashboard") {
@@ -65,6 +68,12 @@ export default function DashboardLayout({
       return {
         title: "Marketing Analytics",
         description: "Select a role to view age, gender, and location distribution",
+      };
+    }
+    if (pathname.startsWith("/dashboard/analytics")) {
+      return {
+        title: "Analytics & Insights",
+        description: "View user activity trends, conversion analytics, and coach ratings",
       };
     }
     if (pathname.startsWith("/dashboard/financial")) {
@@ -115,7 +124,12 @@ export default function DashboardLayout({
     { name: "Settings", path: "/dashboard/settings", icon: <MdSettings className="w-5 h-5" /> },
   ];
 
-  const handleSignOut = () => {
+  const handleSignOutClick = () => {
+    setIsSignOutModalOpen(true);
+  };
+
+  const handleConfirmSignOut = () => {
+    setIsSignOutModalOpen(false);
     router.push("/");
   };
 
@@ -187,7 +201,7 @@ export default function DashboardLayout({
 
           {/* Sign Out Button (Highlighted in soft red) */}
           <button
-            onClick={handleSignOut}
+            onClick={handleSignOutClick}
             className="flex items-center gap-3 w-full px-4 py-2.5 text-[14px] font-medium rounded-lg text-[#f87171] hover:text-red-300 hover:bg-white/5 transition-all text-left cursor-pointer"
           >
             <MdLogout className="w-5 h-5 text-[#f87171]" />
@@ -262,6 +276,42 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* Sign Out Confirmation Modal */}
+      <Modal
+        isOpen={isSignOutModalOpen}
+        onClose={() => setIsSignOutModalOpen(false)}
+        showCloseButton={false}
+        size="sm"
+      >
+        <div className="font-sans text-left p-2 space-y-4">
+          <h3 className="text-lg font-bold text-slate-800 font-sans tracking-tight">
+            Confirm Sign Out
+          </h3>
+          <p className="text-sm text-[#6D6D6D] leading-relaxed font-sans">
+            Are you sure you want to sign out? You will need to log back in to access the dashboard.
+          </p>
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSignOutModalOpen(false)}
+              className="flex-1 font-bold"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleConfirmSignOut}
+              className="flex-1 font-bold"
+            >
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }
