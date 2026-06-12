@@ -54,6 +54,12 @@ export default function DashboardLayout({
         description: "Manage and monitor platform certified coaches and applications",
       };
     }
+    if (pathname.startsWith("/dashboard/reports")) {
+      return {
+        title: "Marketing Analytics",
+        description: "Select a role to view age, gender, and location distribution",
+      };
+    }
     if (pathname.startsWith("/dashboard/financial")) {
       return {
         title: "Financial Reports",

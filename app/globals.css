@@ -102,6 +102,18 @@ body {
   scrollbar-color: #a1a1aa transparent !important;
 }
 
+/* Remove black focus outline from Recharts SVG and elements */
+.recharts-wrapper:focus,
+.recharts-surface:focus,
+.recharts-sector:focus,
+.recharts-curve:focus,
+path:focus,
+g:focus,
+svg:focus {
+  outline: none !important;
+}
+
+
 
 
 

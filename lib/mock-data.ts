@@ -216,6 +216,42 @@ export interface FinancialChartDataPoint {
   session: number;
 }
 
+export interface ReportRecord {
+  id: string;
+  userName: string;
+  userAvatar: string;
+  reason: string;
+}
+
+export interface StoryWordOption {
+  id: string;
+  name: string;
+  percentage: number;
+}
+
+export interface DemographicsDataPoint {
+  label: string;
+  value: number;
+}
+
+export interface GenderDataPoint {
+  label: string;
+  male: number;
+  female: number;
+}
+
+export interface LocationDataPoint {
+  name: string;
+  value: number;
+  percentage: string;
+}
+
+export interface DemographicsData {
+  ageData: DemographicsDataPoint[];
+  genderData: GenderDataPoint[];
+  locationData: LocationDataPoint[];
+}
+
 // Simulated Network Latency Helper
 const simulateLatency = <T>(data: T, ms: number = 600): Promise<T> => {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -620,7 +656,119 @@ export const mockApi = {
     }
     return simulateLatency(result, 400);
   },
+
+  // Fetch demographics based on selected role
+  getDemographics: async (role: "User" | "Coach"): Promise<DemographicsData> => {
+    if (role === "User") return simulateLatency({ ...userDemographics }, 350);
+    return simulateLatency({ ...coachDemographics }, 350);
+  },
+
+  // Fetch user reports list
+  getReports: async (): Promise<ReportRecord[]> => {
+    return simulateLatency([...reportRecords], 350);
+  },
+
+  // Fetch story words
+  getStoryWords: async (): Promise<StoryWordOption[]> => {
+    return simulateLatency([...storyWordOptions], 300);
+  },
+
+  // Add new story category
+  addStoryCategory: async (name: string, percentage: number): Promise<StoryWordOption[]> => {
+    const newCat: StoryWordOption = {
+      id: `word-${storyWordOptions.length + 1}`,
+      name,
+      percentage
+    };
+    storyWordOptions = [...storyWordOptions, newCat];
+    return simulateLatency([...storyWordOptions], 300);
+  },
+
+  // Delete moderated story words
+  deleteStoryWords: async (wordIds: string[]): Promise<StoryWordOption[]> => {
+    storyWordOptions = storyWordOptions.filter(w => !wordIds.includes(w.id));
+    return simulateLatency([...storyWordOptions], 400);
+  },
 };
+
+// Demographics mock data
+let userDemographics: DemographicsData = {
+  ageData: [
+    { label: "Under 18", value: 45 },
+    { label: "18-24", value: 43 },
+    { label: "24-34", value: 42 },
+    { label: "34-44", value: 52 },
+    { label: "45+", value: 85 }
+  ],
+  genderData: [
+    { label: "Under 18", male: 45, female: 38 },
+    { label: "18-24", male: 43, female: 52 },
+    { label: "24-34", male: 42, female: 48 },
+    { label: "34-44", male: 52, female: 65 },
+    { label: "45+", male: 85, female: 82 }
+  ],
+  locationData: [
+    { name: "London, UK", value: 14, percentage: "14%" },
+    { name: "New York, NY", value: 21, percentage: "21%" },
+    { name: "Los Angeles, CA", value: 17, percentage: "17%" },
+    { name: "Austin, TX", value: 9, percentage: "9%" },
+    { name: "Sydney, AU", value: 8, percentage: "8%" },
+    { name: "Miami, FL", value: 7, percentage: "7%" },
+    { name: "Others", value: 15, percentage: "15%" }
+  ]
+};
+
+let coachDemographics: DemographicsData = {
+  ageData: [
+    { label: "Under 18", value: 0 },
+    { label: "18-24", value: 15 },
+    { label: "24-34", value: 55 },
+    { label: "34-44", value: 75 },
+    { label: "45+", value: 65 }
+  ],
+  genderData: [
+    { label: "Under 18", male: 0, female: 0 },
+    { label: "18-24", male: 15, female: 25 },
+    { label: "24-34", male: 55, female: 60 },
+    { label: "34-44", male: 75, female: 70 },
+    { label: "45+", male: 65, female: 62 }
+  ],
+  locationData: [
+    { name: "London, UK", value: 10, percentage: "10%" },
+    { name: "New York, NY", value: 25, percentage: "25%" },
+    { name: "Los Angeles, CA", value: 20, percentage: "20%" },
+    { name: "Austin, TX", value: 15, percentage: "15%" },
+    { name: "Sydney, AU", value: 10, percentage: "10%" },
+    { name: "Miami, FL", value: 5, percentage: "5%" },
+    { name: "Others", value: 15, percentage: "15%" }
+  ]
+};
+
+let reportRecords: ReportRecord[] = [
+  { id: "rep-1", userName: "Bonnie Green", userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100", reason: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sollicitudin porttitor justo eu condimentum." },
+  { id: "rep-2", userName: "Bonnie Green", userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100", reason: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sollicitudin porttitor justo eu condimentum." },
+  { id: "rep-3", userName: "Bonnie Green", userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100", reason: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sollicitudin porttitor justo eu condimentum." },
+  { id: "rep-4", userName: "Bonnie Green", userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100", reason: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sollicitudin porttitor justo eu condimentum." },
+  { id: "rep-5", userName: "Bonnie Green", userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100", reason: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sollicitudin porttitor justo eu condimentum." }
+];
+
+let storyWordOptions: StoryWordOption[] = [
+  { id: "word-1", name: "Cheating", percentage: 10 },
+  { id: "word-2", name: "Narcissist", percentage: 20 },
+  { id: "word-3", name: "Toxic Relationship", percentage: 25 },
+  { id: "word-4", name: "Lack of Trust", percentage: 30 },
+  { id: "word-5", name: "Neglect", percentage: 35 },
+  { id: "word-6", name: "Distance", percentage: 40 },
+  { id: "word-7", name: "Betrayal", percentage: 45 },
+  { id: "word-8", name: "Depression", percentage: 18 },
+  { id: "word-9", name: "Lying", percentage: 50 },
+  { id: "word-10", name: "Emotional Abuse", percentage: 55 },
+  { id: "word-11", name: "Anger Issues", percentage: 60 },
+  { id: "word-12", name: "Trust Issues", percentage: 12 },
+  { id: "word-13", name: "Communication Problems", percentage: 8 },
+  { id: "word-14", name: "Behavioral Red Flags", percentage: 16 },
+  { id: "word-15", name: "Immaturity", percentage: 4 }
+];
 
 // In-Memory Financial Data
 let financialStatsNet: FinancialStats = {
