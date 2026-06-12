@@ -689,6 +689,50 @@ export const mockApi = {
     storyWordOptions = storyWordOptions.filter(w => !wordIds.includes(w.id));
     return simulateLatency([...storyWordOptions], 400);
   },
+
+  // Fetch payout transactions
+  getPayoutUserTransactions: async (): Promise<UserTransaction[]> => {
+    return simulateLatency([...userTransactionsData], 400);
+  },
+
+  // Fetch payout disputes
+  getPayoutCoachDisputes: async (): Promise<CoachDispute[]> => {
+    return simulateLatency([...coachDisputesData], 400);
+  },
+
+  // Fetch payout withdrawals
+  getPayoutCoachWithdrawals: async (): Promise<CoachWithdrawal[]> => {
+    return simulateLatency([...coachWithdrawalsData], 400);
+  },
+
+  // Fetch payout coach transactions
+  getPayoutCoachTransactions: async (): Promise<CoachTransaction[]> => {
+    return simulateLatency([...coachTransactionsData], 400);
+  },
+
+  // Update user transaction status
+  updateUserTransactionStatus: async (id: string, status: UserTransaction["status"]): Promise<UserTransaction | null> => {
+    const index = userTransactionsData.findIndex(t => t.id === id);
+    if (index === -1) return simulateLatency(null);
+    userTransactionsData[index] = { ...userTransactionsData[index], status };
+    return simulateLatency({ ...userTransactionsData[index] }, 300);
+  },
+
+  // Update coach withdrawal status
+  updateCoachWithdrawalStatus: async (id: string, status: CoachWithdrawal["status"]): Promise<CoachWithdrawal | null> => {
+    const index = coachWithdrawalsData.findIndex(w => w.id === id);
+    if (index === -1) return simulateLatency(null);
+    coachWithdrawalsData[index] = { ...coachWithdrawalsData[index], status };
+    return simulateLatency({ ...coachWithdrawalsData[index] }, 300);
+  },
+
+  // Update coach transaction status
+  updateCoachTransactionStatus: async (id: string, status: CoachTransaction["status"]): Promise<CoachTransaction | null> => {
+    const index = coachTransactionsData.findIndex(t => t.id === id);
+    if (index === -1) return simulateLatency(null);
+    coachTransactionsData[index] = { ...coachTransactionsData[index], status };
+    return simulateLatency({ ...coachTransactionsData[index] }, 300);
+  },
 };
 
 // Demographics mock data
@@ -1434,4 +1478,109 @@ let users: UserProfile[] = [
     sessionsLog: [],
   },
 ];
+
+export interface UserTransaction {
+  id: string;
+  user: string;
+  avatar: string;
+  userPaid: string;
+  type: string;
+  platformFee: string;
+  date: string;
+  status: "Completed" | "Pending" | "Refunded" | "Cancelled" | "Cancel by Stripe" | "Accepted" | "Rejected";
+}
+
+export interface CoachDispute {
+  id: string;
+  user: string;
+  coach: string;
+  amount: string;
+  reason: string;
+  date: string;
+  status: "Refunded" | "Completed" | "Pending";
+}
+
+export interface CoachWithdrawal {
+  id: string;
+  coach: string;
+  totalBalance: string;
+  withdrawalRequest: string;
+  withdrawalAmount: string;
+  currentBalance: string;
+  date: string;
+  requestAmount: string;
+  note: string;
+  status: "Cancel" | "Cancel by Stripe" | "Completed" | "Pending" | "Refunded" | "Hold" | "Rejected";
+}
+
+export interface CoachTransaction {
+  id: string;
+  coach: string;
+  coachFee: string;
+  type: string;
+  platformFee: string;
+  date: string;
+  status: "Completed" | "Pending" | "Refunded" | "Cancelled" | "Cancel by Stripe" | "Accepted" | "Rejected" | "Cancel" | "Hold" | "Cancel"}
+
+export const initialUserTransactions: UserTransaction[] = [
+  { id: "TXN-2026 321", user: "Michael Dunphy", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100", userPaid: "$125", type: "Elite", platformFee: "$30", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 320", user: "Robert Perry", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100", userPaid: "$80", type: "Manual", platformFee: "$10", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 319", user: "Joseph McFall", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=100", userPaid: "$200", type: "Essential", platformFee: "$45", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 318", user: "Karen Smith", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100", userPaid: "$90", type: "Manual", platformFee: "$15", date: "11/04/2026", status: "Pending" },
+  { id: "TXN-2026 317", user: "Bonnie Chan", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100", userPaid: "$30", type: "Manual", platformFee: "$06", date: "11/04/2026", status: "Pending" },
+  { id: "TXN-2026 316", user: "Karen Smith", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100", userPaid: "$90", type: "Manual", platformFee: "$15", date: "11/04/2026", status: "Refunded" },
+  { id: "TXN-2026 315", user: "Joseph McFall", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=100", userPaid: "$200", type: "Essential", platformFee: "$45", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 314", user: "Michael Dunphy", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100", userPaid: "$125", type: "Essential", platformFee: "$30", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 313", user: "Robert Perry", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100", userPaid: "$80", type: "Elite", platformFee: "$10", date: "12/04/2026", status: "Completed" }
+];
+
+export const initialCoachDisputes: CoachDispute[] = [
+  { id: "DIS-20260425-03", user: "Hailey James", coach: "Alex Tucker", amount: "$110", reason: "Service not delivered", date: "12/04/2026", status: "Refunded" },
+  { id: "DIS-20260425-02", user: "Claire Tucker", coach: "Mathew Perry", amount: "$80", reason: "Quality of service", date: "02/03/2026", status: "Refunded" },
+  { id: "DIS-20260425-01", user: "Luke Dunphy", coach: "Joseph McFall", amount: "$65", reason: "User Absence", date: "25/02/2026", status: "Refunded" }
+];
+
+export const initialCoachWithdrawals: CoachWithdrawal[] = [
+  { id: "WTH-001", coach: "Michael Dunphy", totalBalance: "$550", withdrawalRequest: "12/04/2026 14:23", withdrawalAmount: "$125", currentBalance: "$550", date: "12/04/2026", requestAmount: "$125", note: "consectetur. Sed vitae...", status: "Completed" },
+  { id: "WTH-002", coach: "Karen Smith", totalBalance: "$550", withdrawalRequest: "11/04/2026 11:23", withdrawalAmount: "$90", currentBalance: "$550", date: "11/04/2026", requestAmount: "$90", note: "consectetur. Sed vitae...", status: "Completed" },
+  { id: "WTH-003", coach: "Robert Perry", totalBalance: "$550", withdrawalRequest: "12/04/2026 15:45", withdrawalAmount: "$80", currentBalance: "$550", date: "12/04/2026", requestAmount: "$80", note: "", status: "Pending" },
+  { id: "WTH-004", coach: "Joseph McFall", totalBalance: "$550", withdrawalRequest: "12/04/2026 09:12", withdrawalAmount: "$200", currentBalance: "$550", date: "12/04/2026", requestAmount: "$200", note: "consectetur. Sed vitae...", status: "Completed" },
+  { id: "WTH-005", coach: "Bonnie Chan", totalBalance: "$550", withdrawalRequest: "11/04/2026 08:30", withdrawalAmount: "$30", currentBalance: "$550", date: "11/04/2026", requestAmount: "$30", note: "consectetur. Sed vitae...", status: "Completed" },
+  { id: "WTH-006", coach: "Joseph McFall", totalBalance: "$550", withdrawalRequest: "12/04/2026 09:12", withdrawalAmount: "$200", currentBalance: "$550", date: "12/04/2026", requestAmount: "$200", note: "consectetur. Sed vitae...", status: "Completed" },
+  { id: "WTH-007", coach: "Michael Dunphy", totalBalance: "$550", withdrawalRequest: "12/04/2026 14:23", withdrawalAmount: "$125", currentBalance: "$550", date: "12/04/2026", requestAmount: "$125", note: "consectetur. Sed vitae...", status: "Completed" },
+  { id: "WTH-008", coach: "Karen Smith", totalBalance: "$550", withdrawalRequest: "11/04/2026 11:23", withdrawalAmount: "$90", currentBalance: "$550", date: "11/04/2026", requestAmount: "$90", note: "consectetur. Sed vitae...", status: "Completed" },
+  { id: "WTH-009", coach: "Robert Perry", totalBalance: "$550", withdrawalRequest: "12/04/2026 15:45", withdrawalAmount: "$80", currentBalance: "$550", date: "12/04/2026", requestAmount: "$80", note: "consectetur. Sed vitae...", status: "Completed" },
+  // Canceled / stripe cancel items
+  { id: "WTH-010", coach: "Alex Tucker", totalBalance: "$125", withdrawalRequest: "28/04/2026 14:23", withdrawalAmount: "$125", currentBalance: "$125", date: "28/04/2026", requestAmount: "$125", note: "Requested cancel via dashboard", status: "Cancel" },
+  { id: "WTH-011", coach: "Claire Jones", totalBalance: "$80", withdrawalRequest: "27/04/2026 12:23", withdrawalAmount: "$125", currentBalance: "$80", date: "27/04/2026", requestAmount: "$125", note: "", status: "Cancel" },
+  { id: "WTH-012", coach: "Phil Hopes", totalBalance: "$250", withdrawalRequest: "22/03/2026 20:45", withdrawalAmount: "$125", currentBalance: "$250", date: "22/03/2026", requestAmount: "$125", note: "System cancellation", status: "Cancel" },
+  { id: "WTH-013", coach: "Luke Brown", totalBalance: "$200", withdrawalRequest: "26/04/2026 10:12", withdrawalAmount: "$125", currentBalance: "$200", date: "26/04/2026", requestAmount: "$125", note: "", status: "Cancel" },
+  { id: "WTH-014", coach: "Lisa Nilson", totalBalance: "$60", withdrawalRequest: "03/04/2026 08:30", withdrawalAmount: "$125", currentBalance: "$60", date: "03/04/2026", requestAmount: "$125", note: "", status: "Cancel" },
+  { id: "WTH-015", coach: "Sarah Jenkins", totalBalance: "$900", withdrawalRequest: "10/04/2026 16:20", withdrawalAmount: "$400", currentBalance: "$900", date: "10/04/2026", requestAmount: "$400", note: "Payout issue", status: "Cancel by Stripe" },
+  { id: "WTH-016", coach: "Marcus Aurelius", totalBalance: "$300", withdrawalRequest: "08/04/2026 11:15", withdrawalAmount: "$150", currentBalance: "$300", date: "08/04/2026", requestAmount: "$150", note: "Awaiting approval validation", status: "Hold" },
+  { id: "WTH-017", coach: "Elena Rostova", totalBalance: "$450", withdrawalRequest: "15/04/2026 10:00", withdrawalAmount: "$225", currentBalance: "$450", date: "15/04/2026", requestAmount: "$225", note: "Rejected request", status: "Rejected" }
+];
+
+export const initialCoachTransactions: CoachTransaction[] = [
+  { id: "TXN-2026 321", coach: "Michael Dunphy", coachFee: "$125", type: "Call", platformFee: "$30", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 318", coach: "Karen Smith", coachFee: "$90", type: "Message", platformFee: "$15", date: "11/04/2026", status: "Completed" },
+  { id: "TXN-2026 320", coach: "Robert Perry", coachFee: "$80", type: "Message", platformFee: "$10", date: "12/04/2026", status: "Pending" },
+  { id: "TXN-2026 319", coach: "Joseph McFall", coachFee: "$200", type: "Session", platformFee: "$45", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 317", coach: "Bonnie Chan", coachFee: "$30", type: "Call", platformFee: "$06", date: "11/04/2026", status: "Completed" },
+  { id: "TXN-2026 316", coach: "Joseph McFall", coachFee: "$200", type: "Session", platformFee: "$45", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 315", coach: "Michael Dunphy", coachFee: "$125", type: "Call", platformFee: "$30", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 314", coach: "Karen Smith", coachFee: "$90", type: "Message", platformFee: "$15", date: "11/04/2026", status: "Completed" },
+  { id: "TXN-2026 313", coach: "Robert Perry", coachFee: "$80", type: "Message", platformFee: "$10", date: "12/04/2026", status: "Completed" },
+  { id: "TXN-2026 312", coach: "Alex Tucker", coachFee: "$120", type: "Call", platformFee: "$20", date: "28/04/2026", status: "Cancel" },
+  { id: "TXN-2026 311", coach: "Claire Jones", coachFee: "$80", type: "Message", platformFee: "$10", date: "27/04/2026", status: "Cancel" },
+  { id: "TXN-2026 310", coach: "Phil Hopes", coachFee: "$250", type: "Session", platformFee: "$50", date: "22/03/2026", status: "Cancel" },
+  { id: "TXN-2026 309", coach: "Luke Brown", coachFee: "$200", type: "Session", platformFee: "$40", date: "26/04/2026", status: "Cancel" },
+  { id: "TXN-2026 308", coach: "Lisa Nilson", coachFee: "$60", type: "Call", platformFee: "$08", date: "03/04/2026", status: "Cancel" },
+  { id: "TXN-2026 307", coach: "Sarah Jenkins", coachFee: "$900", type: "Session", platformFee: "$180", date: "10/04/2026", status: "Cancel by Stripe" }
+];
+
+let userTransactionsData = [...initialUserTransactions];
+let coachDisputesData = [...initialCoachDisputes];
+let coachWithdrawalsData = [...initialCoachWithdrawals];
+let coachTransactionsData = [...initialCoachTransactions];
 

@@ -10,6 +10,7 @@ interface ModalProps {
   children: React.ReactNode;
   className?: string;
   size?: "sm" | "md" | "lg" | "xl" | "full";
+  showCloseButton?: boolean;
 }
 
 export function Modal({
@@ -19,6 +20,7 @@ export function Modal({
   children,
   className = "",
   size = "md",
+  showCloseButton = true,
 }: ModalProps) {
   const dialogRef = React.useRef<HTMLDialogElement>(null);
 
@@ -92,7 +94,7 @@ export function Modal({
         `}
       >
         {/* Close Button - Absolutely positioned in the top-right */}
-        {onClose && (
+        {onClose && showCloseButton && (
           <button
             onClick={onClose}
             className="absolute top-4 right-4 rounded-full p-1.5 text-[#6D6D6D]/60 hover:text-[#6D6D6D] hover:bg-black/5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring z-10 cursor-pointer"

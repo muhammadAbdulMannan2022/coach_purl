@@ -66,6 +66,12 @@ export default function DashboardLayout({
         description: "Manage and view platform financial statements, transactions, and overview",
       };
     }
+    if (pathname.startsWith("/dashboard/payout")) {
+      return {
+        title: "Payment and Payout",
+        description: "Manage and monitor platform transactions, disputes, and payouts",
+      };
+    }
     // Extract panel name from path
     const rawName = pathname.split("/").pop() || "Module";
     const panelName = rawName

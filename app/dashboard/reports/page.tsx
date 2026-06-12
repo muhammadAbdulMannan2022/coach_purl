@@ -216,7 +216,7 @@ export default function ReportsAndModerationPage() {
         {/* Card Header title & Subtitle & Dropdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex flex-col">
-            <h2 className="text-2xl font-serif font-bold text-slate-800">Demographics</h2>
+            <h2 className="text-2xl font-sans font-bold text-slate-800">Demographics</h2>
             <p className="text-sm text-slate-500 font-sans mt-1">Select a role to view age, gender, and location distribution</p>
           </div>
 
@@ -245,7 +245,7 @@ export default function ReportsAndModerationPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Age Bar Chart */}
               <div className="flex flex-col space-y-3">
-                <h3 className="text-lg font-serif font-bold text-slate-800">Age</h3>
+                <h3 className="text-lg font-sans font-bold text-slate-800">Age</h3>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={demographics.ageData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
@@ -284,7 +284,7 @@ export default function ReportsAndModerationPage() {
 
               {/* Gender Double-Column Bar Chart */}
               <div className="flex flex-col space-y-3">
-                <h3 className="text-lg font-serif font-bold text-slate-800">Gender</h3>
+                <h3 className="text-lg font-sans font-bold text-slate-800">Gender</h3>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={demographics.genderData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
@@ -338,7 +338,7 @@ export default function ReportsAndModerationPage() {
 
             {/* Location Section */}
             <div className="border-t border-border/80 pt-6 flex flex-col space-y-3">
-              <h3 className="text-xl font-serif font-bold text-slate-800">Location</h3>
+              <h3 className="text-xl font-sans font-bold text-slate-800">Location</h3>
               
               <div className="flex flex-col md:flex-row items-center justify-center gap-12 py-4">
                 {/* Location Donut Pie Chart */}
@@ -393,7 +393,7 @@ export default function ReportsAndModerationPage() {
 
       {/* Emotional State Card Section */}
       <div className="bg-white border border-border rounded-2xl p-6 shadow-sm space-y-6 flex flex-col">
-        <h2 className="text-xl font-serif font-bold text-slate-800">Emotional State</h2>
+        <h2 className="text-xl font-sans font-bold text-slate-800">Emotional State</h2>
         
         <div className="flex flex-col md:flex-row items-center justify-center gap-12 py-4 border-b border-border pb-8">
           {/* Legend on the Left */}
@@ -502,7 +502,7 @@ export default function ReportsAndModerationPage() {
       <div className="bg-white border border-border rounded-2xl p-6 shadow-sm space-y-6 flex flex-col">
         {/* Header toolbar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-xl font-serif font-bold text-slate-800">User Story Analytics</h2>
+          <h2 className="text-xl font-sans font-bold text-slate-800">User Story Analytics</h2>
 
           {/* Inline Form on the Right */}
           <form onSubmit={handleAddCategory} className="flex gap-2 w-full sm:w-auto self-end sm:self-auto">
