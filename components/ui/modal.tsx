@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { FaX } from "react-icons/fa6";
 
 interface ModalProps {
   isOpen: boolean;
@@ -81,7 +82,7 @@ export function Modal({
     <dialog
       ref={dialogRef}
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent outline-none backdrop:bg-black/30 backdrop:backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-0 m-auto bg-transparent border-none outline-none backdrop:bg-black/30 backdrop:backdrop-blur-sm w-screen h-screen max-w-none max-h-none"
     >
       <div
         className={`
@@ -90,34 +91,23 @@ export function Modal({
           ${className}
         `}
       >
-        {/* Header */}
-        {(title || onClose) && (
-          <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
-            {title && (
-              <h2 className="text-xl font-semibold text-foreground tracking-tight">
-                {title}
-              </h2>
-            )}
-            {onClose && (
-              <button
-                onClick={onClose}
-                className="rounded-full p-1.5 text-foreground/60 hover:text-foreground hover:bg-black/5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
-                aria-label="Close modal"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+        {/* Close Button - Absolutely positioned in the top-right */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 rounded-full p-1.5 text-[#6D6D6D]/60 hover:text-[#6D6D6D] hover:bg-black/5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring z-10 cursor-pointer"
+            aria-label="Close modal"
+          >
+            <FaX/>
+          </button>
+        )}
+
+        {/* Header - Only render if title is provided */}
+        {title && (
+          <div className="border-b border-border pb-4 mb-4 pr-8">
+            <h2 className="text-xl font-semibold text-[#6D6D6D] tracking-tight">
+              {title}
+            </h2>
           </div>
         )}
 
