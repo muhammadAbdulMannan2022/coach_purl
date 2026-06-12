@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { mockApi, UserProfile } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import StatCard from "@/components/ui/dashboardCard";
 import { MdMoreVert, MdSearch, MdClose } from "react-icons/md";
 
 type ActionType = "activate" | "flag" | "block" | null;
@@ -129,22 +130,26 @@ export default function UserManagementPage() {
       
       {/* 4-Card Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-border p-6 rounded-2xl shadow-sm flex flex-col justify-center min-h-[110px]">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#6D6D6D]">Total Users</span>
-          <span className="text-3xl font-bold mt-1 text-[#b08b5c] tracking-tight">9,480</span>
-        </div>
-        <div className="bg-white border border-border p-6 rounded-2xl shadow-sm flex flex-col justify-center min-h-[110px]">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#6D6D6D]">Active Today</span>
-          <span className="text-3xl font-bold mt-1 text-[#0da34c] tracking-tight">756</span>
-        </div>
-        <div className="bg-white border border-border p-6 rounded-2xl shadow-sm flex flex-col justify-center min-h-[110px]">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#6D6D6D]">Flagged Users</span>
-          <span className="text-3xl font-bold mt-1 text-[#0f766e] tracking-tight">72</span>
-        </div>
-        <div className="bg-white border border-border p-6 rounded-2xl shadow-sm flex flex-col justify-center min-h-[110px]">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#6D6D6D]">Suspended</span>
-          <span className="text-3xl font-bold mt-1 text-[#c2410c] tracking-tight">23</span>
-        </div>
+        <StatCard 
+          title="Total Users" 
+          value="9,480" 
+          valueColor="text-[#b08b5c] font-bold" 
+        />
+        <StatCard 
+          title="Active Today" 
+          value="756" 
+          valueColor="text-[#0da34c] font-bold" 
+        />
+        <StatCard 
+          title="Flagged Users" 
+          value="72" 
+          valueColor="text-[#0f766e] font-bold" 
+        />
+        <StatCard 
+          title="Suspended" 
+          value="23" 
+          valueColor="text-[#c2410c] font-bold" 
+        />
       </div>
 
       {/* Directory Content Table Card */}

@@ -48,6 +48,12 @@ export default function DashboardLayout({
         description: "Manage and monitor platform user accounts and permissions",
       };
     }
+    if (pathname.startsWith("/dashboard/coaches")) {
+      return {
+        title: "Coach Management",
+        description: "Manage and monitor platform certified coaches and applications",
+      };
+    }
     // Extract panel name from path
     const rawName = pathname.split("/").pop() || "Module";
     const panelName = rawName

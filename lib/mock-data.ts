@@ -109,6 +109,83 @@ export interface UserProfile {
   sessionsLog: UserSessionLog[];
 }
 
+export interface CoachReview {
+  id: string;
+  reviewerName: string;
+  reviewerAvatar: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+export interface Certification {
+  id: string;
+  title: string;
+  authority: string;
+  issuedDate: string;
+}
+
+export interface CoachDetailProfile {
+  id: string;
+  name: string;
+  avatar: string;
+  email: string;
+  status: "Approved" | "Pending" | "Rejected";
+  specialty: string;
+  experienceYears: number;
+  location: string;
+  phone: string;
+  bio: string;
+  elevatorPitch?: string;
+  specialtiesList: string[];
+  availabilityDays: string[]; // for pending calendar (e.g. Mon, Tue, Wed)
+  availabilityHours: { day: string; timeRange: string }[]; // for approved hours
+  rates: {
+    perMinute: string;
+    perText: string;
+  };
+  cancellationPolicy?: string;
+  certifications?: Certification[];
+  
+  // Stats for Approved state
+  totalSessions: number;
+  totalEarnings: string;
+  avgRating: number;
+  lastActive: string;
+  
+  // Session overview breakdown
+  sessionOverview: {
+    completed: number;
+    upcoming: number;
+    cancelled: number;
+  };
+  
+  // Session statistics
+  sessionStats: {
+    videoCall: number;
+    textSession: number;
+    voiceCall: number;
+    avgDuration: number;
+  };
+  
+  // Bidding & Featured
+  biddingFeatured: {
+    totalSpent: string;
+    featuredPosition: number;
+    featuredExpiry: string;
+  };
+  
+  // Subscription
+  subscription: {
+    planName: string;
+    startDate: string;
+    billingDate: string;
+  };
+  
+  // Reviews
+  reviews: CoachReview[];
+}
+
 // Simulated Network Latency Helper
 const simulateLatency = <T>(data: T, ms: number = 600): Promise<T> => {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -423,7 +500,457 @@ export const mockApi = {
     users[userIndex] = { ...users[userIndex], status };
     return simulateLatency({ ...users[userIndex] }, 500);
   },
+
+  // Fetch coaches with search and filter
+  getDashboardCoaches: async (filterStatus?: string, searchQuery?: string): Promise<CoachDetailProfile[]> => {
+    let result = [...dashboardCoaches];
+    if (filterStatus && filterStatus !== "All Coaches") {
+      result = result.filter((c) => c.status.toLowerCase() === filterStatus.toLowerCase());
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((c) => c.name.toLowerCase().includes(q) || c.specialty.toLowerCase().includes(q));
+    }
+    return simulateLatency(result, 400);
+  },
+
+  // Fetch coach details by ID
+  getCoachDetails: async (id: string): Promise<CoachDetailProfile | null> => {
+    const coach = dashboardCoaches.find((c) => c.id === id) || null;
+    return simulateLatency(coach ? { ...coach } : null, 400);
+  },
+
+  // Update coach application status
+  updateCoachStatus: async (id: string, status: CoachDetailProfile["status"], rejectReason?: string): Promise<CoachDetailProfile | null> => {
+    const coachIndex = dashboardCoaches.findIndex((c) => c.id === id);
+    if (coachIndex === -1) return simulateLatency(null);
+    dashboardCoaches[coachIndex] = { 
+      ...dashboardCoaches[coachIndex], 
+      status,
+      bio: rejectReason ? `Rejected Reason: ${rejectReason}. ${dashboardCoaches[coachIndex].bio}` : dashboardCoaches[coachIndex].bio 
+    };
+    return simulateLatency({ ...dashboardCoaches[coachIndex] }, 500);
+  },
+
+  // Fetch coaching tags by category
+  getCoachingTags: async (category: "style" | "expertise" | "level"): Promise<string[]> => {
+    if (category === "style") return simulateLatency([...coachingStyles], 200);
+    if (category === "expertise") return simulateLatency([...expertiseAreas], 200);
+    return simulateLatency([...expertiseLevels], 200);
+  },
+
+  // Add new coaching tag
+  addCoachingTag: async (category: "style" | "expertise" | "level", tag: string): Promise<string[]> => {
+    if (category === "style") {
+      if (!coachingStyles.includes(tag)) coachingStyles.push(tag);
+      return simulateLatency([...coachingStyles], 200);
+    }
+    if (category === "expertise") {
+      if (!expertiseAreas.includes(tag)) expertiseAreas.push(tag);
+      return simulateLatency([...expertiseAreas], 200);
+    }
+    if (!expertiseLevels.includes(tag)) expertiseLevels.push(tag);
+    return simulateLatency([...expertiseLevels], 200);
+  },
+
+  // Delete coaching tag
+  deleteCoachingTag: async (category: "style" | "expertise" | "level", tag: string): Promise<string[]> => {
+    if (category === "style") {
+      coachingStyles = coachingStyles.filter((t) => t !== tag);
+      return simulateLatency([...coachingStyles], 200);
+    }
+    if (category === "expertise") {
+      expertiseAreas = expertiseAreas.filter((t) => t !== tag);
+      return simulateLatency([...expertiseAreas], 200);
+    }
+    expertiseLevels = expertiseLevels.filter((t) => t !== tag);
+    return simulateLatency([...expertiseLevels], 200);
+  },
 };
+
+// In-Memory Coaching Tags
+let coachingStyles = [
+  "Direct & Honest",
+  "Empathetic & Soft",
+  "Data-Driven",
+  "Spiritual",
+  "Action-Oriented"
+];
+
+let expertiseAreas = [
+  "Breakup Recovery",
+  "Divorce Support",
+  "Relationship Coaching",
+  "Emotional Healing",
+  "Self-Discovery",
+  "Moving Forward",
+  "Co-parenting",
+  "Dating After Breakup"
+];
+
+let expertiseLevels = [
+  "0-2 Years",
+  "3-5 Years",
+  "6-10 Years",
+  "10+ Years",
+  "Licensed Therapists",
+  "Certified Coach"
+];
+
+// In-Memory Coaches Details Database
+let dashboardCoaches: CoachDetailProfile[] = [
+  {
+    id: "sarah-johnson",
+    name: "Sarah Johnson",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200",
+    email: "sarah@gmail.com",
+    status: "Approved",
+    specialty: "Breakup Recovery",
+    experienceYears: 6,
+    location: "Austin, TX",
+    phone: "+125698-742459",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Viverra posuere bibendum placerat vitae in amet ipsum eu. Suspendisse in blandit massa netus gravida. Netus sed ultrices ornare aliquam. Ipsum nisl arcu platea at ac.",
+    elevatorPitch: "I help busy professionals reduce burnout in 30 days through breath-led yoga and daily mindfulness rituals.",
+    specialtiesList: [
+      "Breakup Recovery",
+      "No Contact Strategy",
+      "Relationship Coaching",
+      "Emotional Healing",
+      "Self love & confident"
+    ],
+    availabilityDays: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    availabilityHours: [
+      { day: "Monday", timeRange: "10:10 AM - 12:00 PM" },
+      { day: "Wednesday", timeRange: "10:10 AM - 12:00 PM" }
+    ],
+    rates: {
+      perMinute: "$150",
+      perText: "$150"
+    },
+    cancellationPolicy: "Full refund if cancelled before the cutoff window. Late cancellations are charged 50% of the session fee.",
+    certifications: [
+      { id: "cert-1", title: "RYT 200 Yoga Certification", authority: "Yoga Alliance", issuedDate: "Issued 2020-08-15" },
+      { id: "cert-2", title: "RYT 200 Yoga Certification", authority: "Yoga Alliance", issuedDate: "Issued 2020-08-15" }
+    ],
+    totalSessions: 48,
+    totalEarnings: "$3,40.00", // to match mockup typo of $3,40.00 or $340.00
+    avgRating: 4.5,
+    lastActive: "2 hr ago",
+    sessionOverview: {
+      completed: 96,
+      upcoming: 76,
+      cancelled: 4
+    },
+    sessionStats: {
+      videoCall: 28,
+      textSession: 28,
+      voiceCall: 28,
+      avgDuration: 28
+    },
+    biddingFeatured: {
+      totalSpent: "$560.00",
+      featuredPosition: 1,
+      featuredExpiry: "15 Jul 2026"
+    },
+    subscription: {
+      planName: "$99.00/month",
+      startDate: "1 March 2026",
+      billingDate: "15 Jul 2026"
+    },
+    reviews: [
+      {
+        id: "rev-1",
+        reviewerName: "Bonnie Green",
+        reviewerAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100",
+        rating: 5,
+        comment: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Est at suscipit quam sed mauris eros massa id diam.",
+        date: "1 March 2026"
+      }
+    ]
+  },
+  {
+    id: "coach-mick",
+    name: "Michael Dunphy",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+    email: "michael.dunphy@gmail.com",
+    status: "Approved",
+    specialty: "Relationship recovery",
+    experienceYears: 10,
+    location: "San Francisco, CA",
+    phone: "+1555-019-2834",
+    bio: "Passionate relationship recovery expert helping couples rebuild boundaries and trust. Over 10 years of clinical and coaching practice.",
+    specialtiesList: ["Relationship recovery", "Trust Rebuilding", "Couples therapy"],
+    availabilityDays: ["Mon", "Wed", "Fri"],
+    availabilityHours: [
+      { day: "Monday", timeRange: "09:00 AM - 11:00 AM" },
+      { day: "Wednesday", timeRange: "02:00 PM - 04:00 PM" }
+    ],
+    rates: {
+      perMinute: "$120",
+      perText: "$80"
+    },
+    totalSessions: 450,
+    totalEarnings: "$12,250",
+    avgRating: 4.9,
+    lastActive: "2 hr ago",
+    sessionOverview: {
+      completed: 420,
+      upcoming: 25,
+      cancelled: 5
+    },
+    sessionStats: {
+      videoCall: 250,
+      textSession: 100,
+      voiceCall: 100,
+      avgDuration: 50
+    },
+    biddingFeatured: {
+      totalSpent: "$1,200.00",
+      featuredPosition: 2,
+      featuredExpiry: "30 Jun 2026"
+    },
+    subscription: {
+      planName: "$99.00/month",
+      startDate: "10 Jan 2025",
+      billingDate: "30 Jun 2026"
+    },
+    reviews: []
+  },
+  {
+    id: "coach-robert",
+    name: "Robert Perry",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+    email: "robertperry452@gmail.com",
+    status: "Approved",
+    specialty: "Emotional healing",
+    experienceYears: 8,
+    location: "New York, NY",
+    phone: "+1555-023-4589",
+    bio: "Focusing on mindfulness and trauma-informed healing processes to help you unlock emotional blockages and live stress-free.",
+    specialtiesList: ["Emotional healing", "Mindfulness", "Trauma healing"],
+    availabilityDays: ["Tue", "Thu"],
+    availabilityHours: [
+      { day: "Tuesday", timeRange: "10:00 AM - 12:00 PM" }
+    ],
+    rates: {
+      perMinute: "$130",
+      perText: "$90"
+    },
+    totalSessions: 235,
+    totalEarnings: "$6,500",
+    avgRating: 4.8,
+    lastActive: "30 mins ago",
+    sessionOverview: {
+      completed: 220,
+      upcoming: 10,
+      cancelled: 5
+    },
+    sessionStats: {
+      videoCall: 130,
+      textSession: 55,
+      voiceCall: 50,
+      avgDuration: 45
+    },
+    biddingFeatured: {
+      totalSpent: "$800.00",
+      featuredPosition: 3,
+      featuredExpiry: "01 Jul 2026"
+    },
+    subscription: {
+      planName: "$99.00/month",
+      startDate: "15 Feb 2025",
+      billingDate: "01 Jul 2026"
+    },
+    reviews: []
+  },
+  {
+    id: "coach-joseph",
+    name: "Joseph McFall",
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200",
+    email: "mcfalljoseph@yahoo.com",
+    status: "Approved",
+    specialty: "Self-esteem building",
+    experienceYears: 5,
+    location: "Seattle, WA",
+    phone: "+1555-112-9843",
+    bio: "Empowering young professionals to discover self-worth and build lasting confidence in corporate and personal settings.",
+    specialtiesList: ["Self-esteem building", "Confidence", "Career advice"],
+    availabilityDays: ["Mon", "Tue", "Wed"],
+    availabilityHours: [],
+    rates: {
+      perMinute: "$100",
+      perText: "$60"
+    },
+    totalSessions: 150,
+    totalEarnings: "$3,375",
+    avgRating: 4.6,
+    lastActive: "45 mins ago",
+    sessionOverview: {
+      completed: 140,
+      upcoming: 8,
+      cancelled: 2
+    },
+    sessionStats: {
+      videoCall: 80,
+      textSession: 40,
+      voiceCall: 30,
+      avgDuration: 35
+    },
+    biddingFeatured: {
+      totalSpent: "$0.00",
+      featuredPosition: 0,
+      featuredExpiry: "N/A"
+    },
+    subscription: {
+      planName: "$99.00/month",
+      startDate: "01 Apr 2025",
+      billingDate: "15 Jul 2026"
+    },
+    reviews: []
+  },
+  {
+    id: "coach-karen",
+    name: "Karen Nelson",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+    email: "nelson325@gmail.com",
+    status: "Pending",
+    specialty: "Dating Strategy",
+    experienceYears: 6,
+    location: "Austin, TX",
+    phone: "+125698-742459",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Viverra posuere bibendum placerat vitae in amet ipsum eu. Suspendisse in blandit massa netus gravida. Netus sed ultrices ornare aliquam. Ipsum nisl arcu platea at ac.",
+    elevatorPitch: "I help busy professionals reduce burnout in 30 days through breath-led yoga and daily mindfulness rituals.",
+    specialtiesList: [
+      "Relationship Coaching",
+      "Life Coaching",
+      "Divorce Support",
+      "Personal Growth",
+      "Health Support"
+    ],
+    availabilityDays: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    availabilityHours: [],
+    rates: {
+      perMinute: "$150",
+      perText: "$150"
+    },
+    cancellationPolicy: "Full refund if cancelled before the cutoff window. Late cancellations are charged 50% of the session fee.",
+    certifications: [
+      { id: "cert-1", title: "RYT 200 Yoga Certification", authority: "Yoga Alliance", issuedDate: "Issued 2020-08-15" },
+      { id: "cert-2", title: "RYT 200 Yoga Certification", authority: "Yoga Alliance", issuedDate: "Issued 2020-08-15" }
+    ],
+    totalSessions: 0,
+    totalEarnings: "$0",
+    avgRating: 0,
+    lastActive: "N/A",
+    sessionOverview: { completed: 0, upcoming: 0, cancelled: 0 },
+    sessionStats: { videoCall: 0, textSession: 0, voiceCall: 0, avgDuration: 0 },
+    biddingFeatured: { totalSpent: "$0", featuredPosition: 0, featuredExpiry: "" },
+    subscription: { planName: "", startDate: "", billingDate: "" },
+    reviews: []
+  },
+  {
+    id: "coach-lana",
+    name: "Lana Byrd",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200",
+    email: "lanabyrd52@gmail.com",
+    status: "Approved",
+    specialty: "Breakup Support",
+    experienceYears: 7,
+    location: "Los Angeles, CA",
+    phone: "+1555-894-3019",
+    bio: "Helping individuals navigate emotional turbulence during relationship endings, rediscover personal goals, and transition with grace.",
+    specialtiesList: ["Breakup Support", "Recovery", "Personal Growth"],
+    availabilityDays: ["Mon", "Tue", "Wed", "Thu"],
+    availabilityHours: [],
+    rates: {
+      perMinute: "$110",
+      perText: "$70"
+    },
+    totalSessions: 175,
+    totalEarnings: "$4,250",
+    avgRating: 4.8,
+    lastActive: "2 days ago",
+    sessionOverview: {
+      completed: 165,
+      upcoming: 8,
+      cancelled: 2
+    },
+    sessionStats: {
+      videoCall: 100,
+      textSession: 40,
+      voiceCall: 35,
+      avgDuration: 40
+    },
+    biddingFeatured: {
+      totalSpent: "$300.00",
+      featuredPosition: 4,
+      featuredExpiry: "15 Jul 2026"
+    },
+    subscription: {
+      planName: "$99.00/month",
+      startDate: "05 May 2025",
+      billingDate: "15 Jul 2026"
+    },
+    reviews: []
+  },
+  {
+    id: "coach-leslie",
+    name: "Leslie Livingston",
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200",
+    email: "leslie_livingston@gmail.com",
+    status: "Pending",
+    specialty: "Self-love and Confidence",
+    experienceYears: 4,
+    location: "Boston, MA",
+    phone: "+1555-301-4958",
+    bio: "Specializing in self-compassion tools, building self-love habits, and coaching individuals to overcome deep-seated self-doubt.",
+    specialtiesList: ["Self-love and Confidence", "Self-compassion", "Body positivity"],
+    availabilityDays: ["Mon", "Wed", "Fri"],
+    availabilityHours: [],
+    rates: {
+      perMinute: "$100",
+      perText: "$50"
+    },
+    totalSessions: 0,
+    totalEarnings: "$0",
+    avgRating: 0,
+    lastActive: "N/A",
+    sessionOverview: { completed: 0, upcoming: 0, cancelled: 0 },
+    sessionStats: { videoCall: 0, textSession: 0, voiceCall: 0, avgDuration: 0 },
+    biddingFeatured: { totalSpent: "$0", featuredPosition: 0, featuredExpiry: "" },
+    subscription: { planName: "", startDate: "", billingDate: "" },
+    reviews: []
+  },
+  {
+    id: "coach-bonnie",
+    name: "Bonnie Green",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
+    email: "bonnie_g12@gmail.com",
+    status: "Rejected",
+    specialty: "Meditation and Yoga",
+    experienceYears: 6,
+    location: "Miami, FL",
+    phone: "+1555-839-4058",
+    bio: "Teaching Vinyasa flow and somatic meditation to release stress and ground the mind.",
+    specialtiesList: ["Meditation and Yoga", "Stress release", "Somatic healing"],
+    availabilityDays: ["Tue", "Thu", "Sat"],
+    availabilityHours: [],
+    rates: {
+      perMinute: "$90",
+      perText: "$50"
+    },
+    totalSessions: 0,
+    totalEarnings: "$0",
+    avgRating: 0,
+    lastActive: "N/A",
+    sessionOverview: { completed: 0, upcoming: 0, cancelled: 0 },
+    sessionStats: { videoCall: 0, textSession: 0, voiceCall: 0, avgDuration: 0 },
+    biddingFeatured: { totalSpent: "$0", featuredPosition: 0, featuredExpiry: "" },
+    subscription: { planName: "", startDate: "", billingDate: "" },
+    reviews: []
+  }
+];
+
 
 // In-Memory Users Database
 let users: UserProfile[] = [
