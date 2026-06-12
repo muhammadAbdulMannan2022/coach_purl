@@ -54,6 +54,12 @@ export default function DashboardLayout({
         description: "Manage and monitor platform certified coaches and applications",
       };
     }
+    if (pathname.startsWith("/dashboard/financial")) {
+      return {
+        title: "Financial Reports",
+        description: "Manage and view platform financial statements, transactions, and overview",
+      };
+    }
     // Extract panel name from path
     const rawName = pathname.split("/").pop() || "Module";
     const panelName = rawName

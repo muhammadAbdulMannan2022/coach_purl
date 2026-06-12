@@ -186,6 +186,36 @@ export interface CoachDetailProfile {
   reviews: CoachReview[];
 }
 
+export interface TransactionRecord {
+  id: string;
+  date: string;
+  service: string;
+  gross: string;
+  net: string;
+  platformFee: string;
+  payout: string;
+}
+
+export interface FinancialStats {
+  revenueToday: string;
+  platformEarnings: string;
+  pendingPayouts: string;
+  openDisputes: string;
+  totalLabel: string;
+  subscription: string;
+  payPerMinute: string;
+  credit: string;
+  session: string;
+}
+
+export interface FinancialChartDataPoint {
+  label: string;
+  subscription: number;
+  payPerMinute: number;
+  credit: number;
+  session: number;
+}
+
 // Simulated Network Latency Helper
 const simulateLatency = <T>(data: T, ms: number = 600): Promise<T> => {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -566,7 +596,112 @@ export const mockApi = {
     expertiseLevels = expertiseLevels.filter((t) => t !== tag);
     return simulateLatency([...expertiseLevels], 200);
   },
+
+  // Fetch financial stats based on Net / Total / Gross filter
+  getFinancialStats: async (mode: "Net" | "Total" | "Gross"): Promise<FinancialStats> => {
+    if (mode === "Net") return simulateLatency({ ...financialStatsNet }, 350);
+    if (mode === "Total") return simulateLatency({ ...financialStatsTotal }, 350);
+    return simulateLatency({ ...financialStatsGross }, 350);
+  },
+
+  // Fetch chart coordinate points based on mode
+  getFinancialChartData: async (mode: "Net" | "Total" | "Gross"): Promise<FinancialChartDataPoint[]> => {
+    if (mode === "Net") return simulateLatency([...financialChartDataNet], 350);
+    if (mode === "Total") return simulateLatency([...financialChartDataTotal], 350);
+    return simulateLatency([...financialChartDataGross], 350);
+  },
+
+  // Fetch transactions log ledger
+  getTransactions: async (searchQuery?: string): Promise<TransactionRecord[]> => {
+    let result = [...transactions];
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((t) => t.id.toLowerCase().includes(q) || t.service.toLowerCase().includes(q));
+    }
+    return simulateLatency(result, 400);
+  },
 };
+
+// In-Memory Financial Data
+let financialStatsNet: FinancialStats = {
+  revenueToday: "$3,128",
+  platformEarnings: "$1,230",
+  pendingPayouts: "$3,120",
+  openDisputes: "02",
+  totalLabel: "Total : 10k",
+  subscription: "90.6",
+  payPerMinute: "123.2",
+  credit: "125.2",
+  session: "115.3"
+};
+
+let financialStatsTotal: FinancialStats = {
+  revenueToday: "$4,582",
+  platformEarnings: "$1,894",
+  pendingPayouts: "$4,320",
+  openDisputes: "02",
+  totalLabel: "Total : 14.5k",
+  subscription: "125.4",
+  payPerMinute: "168.8",
+  credit: "185.0",
+  session: "154.2"
+};
+
+let financialStatsGross: FinancialStats = {
+  revenueToday: "$6,240",
+  platformEarnings: "$2,460",
+  pendingPayouts: "$6,240",
+  openDisputes: "02",
+  totalLabel: "Total : 20k",
+  subscription: "181.2",
+  payPerMinute: "246.4",
+  credit: "250.4",
+  session: "230.6"
+};
+
+let financialChartDataNet: FinancialChartDataPoint[] = [
+  { label: "Jan", subscription: 12000, payPerMinute: 15000, credit: 8000, session: 10000 },
+  { label: "Feb", subscription: 9000, payPerMinute: 22000, credit: 14000, session: 5000 },
+  { label: "Mar", subscription: 28000, payPerMinute: 18000, credit: 12000, session: 19000 },
+  { label: "Apr", subscription: 16000, payPerMinute: 25000, credit: 15000, session: 24000 },
+  { label: "May", subscription: 24000, payPerMinute: 21000, credit: 20000, session: 11000 },
+  { label: "Jun", subscription: 29000, payPerMinute: 28000, credit: 10000, session: 28000 },
+  { label: "Jul", subscription: 5000, payPerMinute: 5000, credit: 20000, session: 20000 },
+  { label: "Aug", subscription: 5000, payPerMinute: 5000, credit: 20000, session: 20000 }
+];
+
+let financialChartDataTotal: FinancialChartDataPoint[] = [
+  { label: "Jan", subscription: 15000, payPerMinute: 19000, credit: 11000, session: 13000 },
+  { label: "Feb", subscription: 11000, payPerMinute: 28000, credit: 18000, session: 8000 },
+  { label: "Mar", subscription: 35000, payPerMinute: 24000, credit: 16000, session: 25000 },
+  { label: "Apr", subscription: 22000, payPerMinute: 32000, credit: 21000, session: 31000 },
+  { label: "May", subscription: 30000, payPerMinute: 27000, credit: 26000, session: 15000 },
+  { label: "Jun", subscription: 38000, payPerMinute: 36000, credit: 14000, session: 36000 },
+  { label: "Jul", subscription: 8000, payPerMinute: 7000, credit: 25000, session: 26000 },
+  { label: "Aug", subscription: 8000, payPerMinute: 7000, credit: 25000, session: 26000 }
+];
+
+let financialChartDataGross: FinancialChartDataPoint[] = [
+  { label: "Jan", subscription: 24000, payPerMinute: 30000, credit: 16000, session: 20000 },
+  { label: "Feb", subscription: 18000, payPerMinute: 44000, credit: 28000, session: 10000 },
+  { label: "Mar", subscription: 56000, payPerMinute: 36000, credit: 24000, session: 38000 },
+  { label: "Apr", subscription: 32000, payPerMinute: 50000, credit: 30000, session: 48000 },
+  { label: "May", subscription: 48000, payPerMinute: 42000, credit: 40000, session: 22000 },
+  { label: "Jun", subscription: 58000, payPerMinute: 56000, credit: 20000, session: 56000 },
+  { label: "Jul", subscription: 10000, payPerMinute: 10000, credit: 40000, session: 40000 },
+  { label: "Aug", subscription: 10000, payPerMinute: 10000, credit: 40000, session: 40000 }
+];
+
+let transactions: TransactionRecord[] = [
+  { id: "TXN-2026-320", date: "May 22, 2026", service: "Pay-Per-Minute", gross: "$20.00", net: "$14.00", platformFee: "$2.80", payout: "$11.20" },
+  { id: "TXN-2026-321", date: "May 22, 2026", service: "Pay-Per-Minute", gross: "$20.00", net: "$14.00", platformFee: "$2.80", payout: "$11.20" },
+  { id: "TXN-2026-322", date: "May 22, 2026", service: "Pay-Per-Minute", gross: "$20.00", net: "$14.00", platformFee: "$2.80", payout: "$11.20" },
+  { id: "TXN-2026-323", date: "May 22, 2026", service: "Pay-Per-Minute", gross: "$20.00", net: "$14.00", platformFee: "$2.80", payout: "$11.20" },
+  { id: "TXN-2026-324", date: "May 22, 2026", service: "Pay-Per-Minute", gross: "$20.00", net: "$14.00", platformFee: "$2.80", payout: "$11.20" },
+  { id: "TXN-2026-325", date: "May 22, 2026", service: "Pay-Per-Minute", gross: "$20.00", net: "$14.00", platformFee: "$2.80", payout: "$11.20" },
+  { id: "TXN-2026-326", date: "May 22, 2026", service: "Subscription", gross: "$99.00", net: "$79.20", platformFee: "$19.80", payout: "$59.40" },
+  { id: "TXN-2026-327", date: "May 21, 2026", service: "Session", gross: "$154.00", net: "$123.20", platformFee: "$30.85", payout: "$92.40" }
+];
 
 // In-Memory Coaching Tags
 let coachingStyles = [
