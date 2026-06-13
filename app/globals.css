@@ -31,11 +31,11 @@
 :root {
   --background: #FCFFFA;
   --foreground: #6d6d6d; 
-  --primary: #0da34c; /* active button or active item bg */
+  --primary: #0da34c; 
   --primary-foreground: #ffffff;
-  --card: #f8faf8; /* soft off-white/greenish card */
+  --card: #f8faf8; 
   --card-foreground: #6d6d6d;
-  --border: #e2e8e2; /* soft gray border */
+  --border: #e2e8e2; 
   --ring: #0da34c;
 }
 
