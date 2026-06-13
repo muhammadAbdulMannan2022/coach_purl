@@ -18,7 +18,8 @@ import {
   MdLogout,
   MdMenu,
   MdChevronLeft,
-  MdStackedLineChart
+  MdStackedLineChart,
+  MdArticle
 } from "react-icons/md";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -106,6 +107,18 @@ export default function DashboardLayout({
         description: "Manage push notification rules and broadcast instant alerts",
       };
     }
+    if(pathname.startsWith("/dashboard/settings")){
+      return {
+        title: "Platform Settings",
+        description: "Manage global platform configurations, pricing, and features.",
+      };
+    }
+    if(pathname.startsWith("/dashboard/legal")){
+      return {
+        title: "Terms and Conditions",
+        description: "Configure and manage global platform legal terms and policies.",
+      };
+    }
     // Extract panel name from path
     const rawName = pathname.split("/").pop() || "Module";
     const panelName = rawName
@@ -134,6 +147,7 @@ export default function DashboardLayout({
     { name: "AI Control Panel", path: "/dashboard/ai", icon: <MdSmartToy className="w-5 h-5" /> },
     { name: "Notifications", path: "/dashboard/notifications", icon: <MdNotifications className="w-5 h-5" /> },
     { name: "Settings", path: "/dashboard/settings", icon: <MdSettings className="w-5 h-5" /> },
+    { name: "Legal Info", path: "/dashboard/legal", icon: <MdArticle className="w-5 h-5" /> },
   ];
 
   const handleSignOutClick = () => {
