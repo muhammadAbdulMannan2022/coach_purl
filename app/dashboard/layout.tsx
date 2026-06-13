@@ -94,6 +94,18 @@ export default function DashboardLayout({
         description: "Manage and configure live bidding slots and bidder applications",
       };
     }
+    if(pathname.startsWith("/dashboard/ai")){
+      return {
+        title: "AI Control Panel",
+        description: "",
+      };
+    }
+    if(pathname.startsWith("/dashboard/notifications")){
+      return {
+        title: "Notifications Management",
+        description: "Manage push notification rules and broadcast instant alerts",
+      };
+    }
     // Extract panel name from path
     const rawName = pathname.split("/").pop() || "Module";
     const panelName = rawName
@@ -134,7 +146,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground font-sans">
+    <div className="flex min-h-screen bg-background text-foreground font-sans" suppressHydrationWarning>
       {/* Mobile Drawer Overlay Backdrop */}
       {isSidebarOpen && (
         <div
@@ -153,7 +165,7 @@ export default function DashboardLayout({
       >
         {/* Sidebar Header with Large Gold Logo and Collapse Arrow */}
         <div className="flex flex-col items-center justify-center pt-8 pb-4 relative">
-          <div className="relative w-28 h-28 rounded-full overflow-hidden border border-[#b5945b]/80 p-0.5 flex items-center justify-center bg-black/10">
+          <div className="relative w-28 h-28 rounded-full overflow-hidden border border-[#b5945b]/80 p-0.5 flex items-center justify-center bg-black/10" suppressHydrationWarning>
             <Image
               src="/logo.png"
               alt="SB2 Logo"

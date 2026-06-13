@@ -364,7 +364,7 @@ export default function AIControlPanelPage() {
             </div>
 
             {/* Right Section: Quick Settings (4 columns) */}
-            <div className="lg:col-span-4 space-y-6 ">
+            <div className="lg:col-span-4 space-y-6">
               
               {/* Quick Settings Card */}
               <div className="bg-white border border-border p-6 rounded-2xl shadow-sm flex flex-col h-full">
